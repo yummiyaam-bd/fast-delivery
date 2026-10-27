@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fast Delivery Admin</title>
+<style>
+:root{--bg:#f5f7fa;--card:#fff;--ink:#16202a;--mut:#6b7785;--line:#e6eaef;--pri:#0e9f6e;--priD:#0b7d56;--bad:#ef4444;--warn:#f59e0b;--blue:#3b82f6}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0}
+[hidden]{display:none!important}
+h2{font-size:20px}h3{font-size:16px;margin-bottom:10px}
+.muted{color:var(--mut);font-size:13px}
+/* login */
+#login{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(160deg,#e8fbf3,#eef4ff)}
+.lbox{background:#fff;border-radius:22px;padding:26px;width:100%;max-width:380px;box-shadow:0 12px 40px #1a3a5a1a}
+.lbox h1{font-size:24px;margin-bottom:4px}
+.lbox .in{margin:10px 0}
+.msg{color:var(--bad);font-size:13px;min-height:18px;margin-top:6px}
+.in,select.in,textarea.in{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px 13px;outline:none}
+.in:focus{border-color:var(--pri);box-shadow:0 0 0 3px #0e9f6e22}
+.b{background:var(--pri);color:#fff;border-radius:12px;padding:11px 16px;font-weight:600}
+.b:active{background:var(--priD)}
+.b.o{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.b.r{background:#fee2e2;color:#b91c1c}
+.b.s{padding:7px 12px;font-size:13px;border-radius:10px}
+.b.w{width:100%}
+/* shell */
+#top{position:sticky;top:0;z-index:20;background:#ffffffee;backdrop-filter:blur(10px);display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line)}
+.ib{width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid var(--line);font-size:18px;display:grid;place-items:center;position:relative}
+#ttl{flex:1;min-width:0}#ttl b{font-size:19px;display:block}#ttl span{font-size:12px;color:var(--mut)}
+#bdg{position:absolute;top:-4px;right:-4px;background:var(--bad);color:#fff;font-size:11px;min-width:19px;height:19px;border-radius:10px;display:grid;place-items:center;padding:0 5px}
+#side{position:fixed;top:0;bottom:0;left:0;width:272px;max-width:82vw;background:#fff;z-index:40;transform:translateX(-105%);transition:transform .25s;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:calc(18px + env(safe-area-inset-top)) 14px 16px;overflow:auto}
+#side.open{transform:none;box-shadow:10px 0 40px #0003}
+#sh{position:fixed;inset:0;background:#0006;z-index:35;display:none}#sh.show{display:block}
+.brand{font-size:21px;font-weight:800;color:var(--pri);padding:4px 10px}.brand small{display:block;font-size:11px;letter-spacing:3px;color:var(--mut);font-weight:600}
+.nav{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:none;width:100%;text-align:left;color:#3a4654;font-weight:500;margin-top:2px}
+.nav.on{background:#e6f8f0;color:var(--priD);font-weight:700}
+.nav i{font-style:normal;width:24px;text-align:center;font-size:18px}
+#main{padding:14px 14px 110px;max-width:980px;margin:0 auto}
+.card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 1px 2px #14203b0a,0 6px 18px #14203b0a}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media(min-width:700px){.grid.g4{grid-template-columns:repeat(4,1fr)}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}}
+.stat{border-radius:18px;padding:14px 14px 12px;color:#fff;position:relative;overflow:hidden}
+.stat small{display:block;opacity:.9;font-size:12.5px;margin-bottom:6px}.stat b{font-size:24px}
+.stat:after{content:"";position:absolute;right:-18px;top:-18px;width:72px;height:72px;border-radius:50%;background:#fff3}
+.c1{background:linear-gradient(135deg,#10b981,#059669)}.c2{background:linear-gradient(135deg,#3b82f6,#2563eb)}.c3{background:linear-gradient(135deg,#f59e0b,#d97706)}.c4{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}.c5{background:linear-gradient(135deg,#ec4899,#db2777)}.c6{background:linear-gradient(135deg,#14b8a6,#0d9488)}.c7{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.cv{position:relative;height:230px}
+.chips{display:flex;gap:8px;overflow:auto;padding-bottom:8px;margin-bottom:8px}
+.chip{background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 14px;white-space:nowrap;font-size:13.5px}
+.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.row{display:flex;gap:10px;align-items:center}.row.sp{justify-content:space-between}.wrap{flex-wrap:wrap}
+.pill{display:inline-block;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff}
+.ord{border-left:5px solid var(--blue)}
+.ord .it{background:var(--bg);border-radius:10px;padding:8px 10px;margin:8px 0;font-size:13.5px}
+.ord a{color:var(--blue);text-decoration:none;font-weight:600}
+.thumb{width:52px;height:52px;border-radius:12px;background:#eef2f6;display:grid;place-items:center;font-size:28px;overflow:hidden;flex:none}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.li{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.li:last-child{border:0}
+.li .g{flex:1;min-width:0}.li .g b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.low{color:var(--bad);font-weight:700}
+.num{width:78px;text-align:center}
+.lbl{font-size:12.5px;color:var(--mut);margin:10px 0 4px;display:block}
+#savebar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:none;gap:10px;align-items:center;justify-content:space-between;box-shadow:0 -6px 20px #0001}
+#savebar.show{display:flex}
+#toast{position:fixed;top:calc(70px + env(safe-area-inset-top));left:50%;transform:translateX(-50%) translateY(-20px);background:#16202a;color:#fff;padding:12px 18px;border-radius:14px;z-index:100;opacity:0;transition:.3s;pointer-events:none;max-width:92vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%)}
+#toast.big{background:var(--pri);font-weight:700}
+#md{position:fixed;inset:0;background:#0007;z-index:60;display:none;align-items:flex-end;justify-content:center}
+#md.show{display:flex}
+#mdb{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:18px 18px 26px}
+.bar{height:10px;border-radius:6px;background:#e8edf2;overflow:hidden}.bar i{display:block;height:100%}
+table{width:100%;border-collapse:collapse;font-size:13.5px}td,th{padding:8px 4px;border-bottom:1px solid var(--line);text-align:left}
+.empty{text-align:center;color:var(--mut);padding:26px 0}
+.tg{display:flex;align-items:center;gap:10px}.tg input{width:20px;height:20px;accent-color:var(--pri)}
+</style></head><body>
+
+<div id="login" hidden><div class="lbox">
+ <h1>🛵 Fast Delivery</h1><p class="muted">Admin panel login</p>
+ <input class="in" id="le" type="email" placeholder="Email" autocomplete="username">
+ <input class="in" id="lp" type="password" placeholder="Password (min 6)" autocomplete="current-password">
+ <button class="b w" id="lg">Sign in</button>
+ <button class="b o w" id="ls" style="margin-top:8px">Create account (staff)</button>
+ <div class="msg" id="lm"></div>
+ <p class="muted" style="margin-top:8px">Account banale-o access pabe na, jotokkhon owner apnar email <b>Staff</b> list-e na jore.</p>
+</div></div>
+
+<div id="setup" hidden style="padding:24px;max-width:560px;margin:auto">
+ <h2>Supabase setup baki ache</h2><p class="muted" style="margin:8px 0">supabase-config.js file-e apnar Supabase URL ar anon key paste korun. Tar age preview dekhte: <a href="?demo=1">demo mode</a>.</p>
+</div>
+
+<div id="app" hidden>
+ <div id="sh"></div>
+ <aside id="side"><div class="brand">FAST DELIVERY<small>ADMIN</small></div><div style="height:12px"></div><div id="nav"></div></aside>
+ <header id="top"><button class="ib" id="mn" aria-label="Menu">☰</button><div id="ttl"><b id="t1">Dashboard</b><span id="t2"></span></div>
+  <button class="ib" id="bell" aria-label="New orders">🔔<span id="bdg" hidden>0</span></button><button class="ib" id="rf" aria-label="Refresh">⟳</button></header>
+ <main id="main"></main>
+ <div id="savebar"><span><b>Unsaved changes</b><br><span class="muted">Save dile customer site-e live hobe</span></span><span class="row"><button class="b o s" id="dis">Discard</button><button class="b" id="sv">Save</button></span></div>
+</div>
+<div id="md"><div id="mdb"></div></div>
+<div id="toast"></div>
+
+<script src="supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const PAL=["#10b981","#3b82f6","#f59e0b","#ef4444","#8b5cf6","#ec4899","#14b8a6","#f97316","#6366f1","#84cc16"];
+const STS=["Received","Preparing","On the way","Delivered","Cancelled"];
+const SC={"Received":"#3b82f6","Preparing":"#f59e0b","On the way":"#8b5cf6","Delivered":"#10b981","Cancelled":"#ef4444"};
+const TK=n=>"৳"+Math.round(+n||0).toLocaleString("en-US");
+const dk=t=>{const d=new Date(t);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const fdt=t=>new Date(t).toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+const uid=()=>Math.random().toString(36).slice(2,9);
+const DEF_S={fee:40,free:1000,coupon:"HOBE10",pct:10,wa:"",bk:"",ng:"",mail:"",areasX:"",open:true,notice:"",lowAt:5};
+
+const ST={orders:[],exp:[],carts:[],staff:[],shop:{cats:[],stores:[],settings:{...DEF_S},products:[]},costs:{},role:"",page:"dash",user:null};
+let API=null,dirty=false,CH={},OF="all",OQ="",PQ="",PC="",SF="low",RR="30",RD="del",firstLoad=true;
+
+/* ---------- toast / sound / notify ---------- */
+let tt;function toast(m,big){const t=$("toast");t.textContent=m;t.className="show"+(big?" big":"");clearTimeout(tt);tt=setTimeout(()=>t.className="",big?5000:2500)}
+let AC;function unlock(){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume&&AC.resume()}catch(e){}}
+addEventListener("pointerdown",unlock,{once:true});
+function beep(){try{unlock();[0,.2,.4].forEach((d,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=[880,1175,1480][i];o.connect(g);g.connect(AC.destination);const t=AC.currentTime+d;g.gain.setValueAtTime(.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.start(t);o.stop(t+.3)})}catch(e){}}
+function notifyNew(o){beep();toast("🛍️ New order #"+o.id+" · "+TK(o.amt)+" · "+(o.ar||""),true);try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}
+ try{if(window.Notification&&Notification.permission=="granted")new Notification("New order #"+o.id,{body:TK(o.amt)+" · "+(o.nm||"")+" · "+(o.ar||"")})}catch(e){}}
+
+/* ---------- image helper ---------- */
+function imgData(file,max=700){return new Promise(r=>{const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",.8))};im.src=fr.result};fr.readAsDataURL(file)})}
+
+/* ================= API: DEMO ================= */
+function demoAPI(){
+ const cats=[["🍔","Restaurants"],["💊","Pharmacy"],["🥤","Drinks"],["🛒","Groceries"]];
+ const stores=[{id:1,n:"Burger Hub",c:"Restaurants",e:"🍔",r:4.5,t:30,d:"Burgers"},{id:2,n:"Biryani Ghar",c:"Restaurants",e:"🍛",r:4.7,t:40,d:"Biryani"}];
+ const prods=[["Chicken Biryani","Restaurants","Biryani",250,"🍛",0,"Half plate",2,40],["Beef Burger","Restaurants","Burger",220,"🍔",0,"Juicy",1,3],["Napa 500","Pharmacy","Medicine",20,"💊",0,"10 tabs",null,120],["Coca Cola 1L","Drinks","Soft",70,"🥤",0,"Chilled",null,0],["Rice 5kg","Groceries","Staples",420,"🍚",0,"Miniket",null,18],["Orange Juice","Drinks","Juice",90,"🧃",0,"",null,4]].map(a=>({id:uid(),n:a[0],c:a[1],s:a[2],p:a[3],i:a[4],f:a[5],d:a[6],st:a[7],k:a[8],h:0}));
+ let orders=[],exp=[],carts=[],staff=[{id:"manager@demo.com",role:"admin"}],costs={"Chicken Biryani":160,"Beef Burger":130,"Napa 500":14,"Coca Cola 1L":55,"Rice 5kg":360,"Orange Juice":65},audit=[];
+ const nm=["Rahim","Karim","Sumi","Nila","Arif","Tania"],ars=["Gulshan 1","Banani","Dhanmondi","Badda","Mohakhali"];
+ let n=0;for(let d=0;d<45;d++){const c=d<2?6:1+Math.floor(Math.random()*5);for(let j=0;j<c;j++){const ls=[0,1,2].slice(0,1+Math.floor(Math.random()*3)).map(i=>prods[(i+j+d)%6]).map(p=>({n:p.n,q:1+Math.floor(Math.random()*2),p:p.p}));const amt=ls.reduce((s,l)=>s+l.q*l.p,0)+40;const t=Date.now()-d*864e5-Math.random()*8e7;
+  orders.push({_id:"d"+(n++),id:String(100000+n),t,amt,pm:["COD","bKash","Nagad"][j%3],trx:"",items:ls.map(l=>l.n+" x"+l.q).join(", "),lines:ls,nm:nm[j%6],ph:"0171"+(1000000+n),ad:"House "+(j+3)+", Road 5",ar:ars[(j+d)%5],st:d==0&&j<2?"Received":d==0&&j==2?"Preparing":Math.random()<.08?"Cancelled":"Delivered",sd:true})}}
+ for(let i=0;i<6;i++)exp.push({id:"e"+i,date:dk(Date.now()-i*5*864e5),title:["Rider salary","Facebook ads","Packaging","Fuel"][i%4],cat:["Salary","Ads","Packaging","Transport"][i%4],amt:[2500,800,400,600][i%4]});
+ carts=[{id:"c1",items:"Beef Burger x2, Coca Cola 1L x1",amt:510,ar:"Banani",ph:"01712345678",nm:"Sabbir",t:Date.now()-50*6e4},{id:"c2",items:"Rice 5kg x1",amt:420,ar:"Badda",ph:"",nm:"",t:Date.now()-3*6e4}];
+ let ow=()=>{},cbs={};
+ const emit=(k)=>cbs[k]&&cbs[k](k=="orders"?orders.slice().sort((a,b)=>b.t-a.t):k=="exp"?exp.slice():k=="carts"?carts.slice():staff.slice(),[]);
+ setTimeout(()=>{const p=prods[0],o={_id:"d"+(n++),id:"900001",t:Date.now(),amt:290,pm:"bKash",trx:"8H3K2",items:p.n+" x1",lines:[{n:p.n,q:1,p:p.p}],nm:"Demo Customer",ph:"01700000000",ad:"Road 11",ar:"Gulshan 2",st:"Received"};orders.push(o);cbs.orders&&cbs.orders(orders.slice().sort((a,b)=>b.t-a.t),[o])},9000);
+ return{demo:true,async init(){},onAuth(cb){setTimeout(()=>cb({email:"owner@demo.com"}),50)},async login(){},async signup(){},async logout(){location.reload()},
+  async role(){return"owner"},watchOrders(cb){cbs.orders=cb;cb(orders.slice().sort((a,b)=>b.t-a.t),[])},async updateOrder(id,p){const o=orders.find(x=>x._id==id);Object.assign(o,p);emit("orders")},
+  async loadShop(){return{cats:JSON.parse(JSON.stringify(cats)),stores:JSON.parse(JSON.stringify(stores)),settings:{...DEF_S,fee:40,free:1000,coupon:"HOBE10",pct:10,wa:"8801700000000"},products:JSON.parse(JSON.stringify(prods))}},
+  async saveShop(){},async loadCosts(){return{...costs}},async saveCosts(c){costs=c},
+  watchExpenses(cb){cbs.exp=cb;cb(exp.slice())},async addExpense(e){exp.push({...e,id:uid()});emit("exp")},async delExpense(id){exp=exp.filter(x=>x.id!=id);emit("exp")},
+  watchCarts(cb){cbs.carts=cb;cb(carts.slice())},async delCart(id){carts=carts.filter(x=>x.id!=id);emit("carts")},
+  async audit(t){audit.unshift({t:Date.now(),who:"owner@demo.com",text:t})},async loadAudit(){return audit.slice()},
+  watchStaff(cb){cbs.staff=cb;cb(staff.slice())},async setStaff(e,r){staff=staff.filter(x=>x.id!=e);staff.push({id:e,role:r});emit("staff")},async delStaff(e){staff=staff.filter(x=>x.id!=e);emit("staff")}}}
+
+/* ================= API: SUPABASE ================= */
+function sbAPI(){
+ const C=window.SB_CONFIG;if(!C||!C.url||!C.anonKey||/PASTE|YOUR/i.test(C.url+C.anonKey))return null;
+ let sb,cur="";const owner=(C.ownerEmail||"").toLowerCase();
+ const ld=u=>new Promise((r,j)=>{const s=document.createElement("script");s.src=u;s.onload=r;s.onerror=j;document.head.appendChild(s)});
+ const ck=r=>{if(r&&r.error)throw r.error;return r};
+ const mapO=r=>({...(r.d||{}),_id:r.id,t:+r.t,st:r.st,sd:!!r.sd});
+ const seen={};const chg=(k,v)=>{const j=JSON.stringify(v);if(seen[k]===j)return false;seen[k]=j;return true};
+ const poll=(fn,ms=12000)=>{fn();setInterval(fn,ms);return fn};
+ let reO,reE,reC,reS;
+ return{async init(){await ld("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js");sb=supabase.createClient(C.url,C.anonKey)},
+  onAuth(cb){sb.auth.onAuthStateChange((ev,s)=>{if(["INITIAL_SESSION","SIGNED_IN","SIGNED_OUT"].includes(ev)){cur=s&&s.user?(s.user.email||"").toLowerCase():"";setTimeout(()=>cb(s?s.user:null),0)}})},
+  async login(e,p){ck(await sb.auth.signInWithPassword({email:e,password:p}))},
+  async signup(e,p){const r=ck(await sb.auth.signUp({email:e,password:p}));if(!r.data.session)throw new Error("Email confirm lagbe. Supabase-e Confirm email off korun, ba inbox check korun.")},
+  async logout(){await sb.auth.signOut();location.reload()},
+  async role(email){email=(email||"").toLowerCase();if(email&&email==owner)return"owner";const r=await sb.from("staff").select("role").eq("email",email).maybeSingle();return r.data?(r.data.role||"staff"):null},
+  watchOrders(cb){let known=null;const load=async()=>{const since=Date.now()-91*864e5,r=await sb.from("orders").select("*").gte("t",since).order("t",{ascending:false}).limit(3000);if(r.error){toast("Orders load hoyni: "+r.error.message);return}
+    const l=r.data.map(mapO),added=known?l.filter(o=>!known.has(o._id)):[];known=new Set(l.map(o=>o._id));if(added.length||chg("o",l))cb(l,added)};reO=load;poll(load,8000);try{sb.channel("ord").on("postgres_changes",{event:"*",schema:"public",table:"orders"},load).subscribe()}catch(e){}},
+  async updateOrder(id,p){ck(await sb.from("orders").update(p).eq("id",id));reO&&reO()},
+  async loadShop(){const m=ck(await sb.from("kv").select("v").eq("k","meta").maybeSingle()).data;if(!m)return null;const d=m.v,n=d.parts||0,names=[];for(let i=0;i<n;i++)names.push("p"+i);
+    let pr=[];if(n){const rows=ck(await sb.from("kv").select("k,v").in("k",names)).data||[];rows.sort((a,b)=>(+a.k.slice(1))-(+b.k.slice(1))).forEach(r=>JSON.parse(r.v.j).forEach(o=>pr.push({id:uid(),...o})))}
+    return{cats:d.cats||[],stores:d.stores||[],settings:{...DEF_S,...(d.settings||{})},products:pr,parts:n}},
+  async saveShop(sh){const items=sh.products.map(p=>{const o={...p};delete o.id;return o});const parts=[];let c=[],len=0;items.forEach(o=>{const l=JSON.stringify(o).length;if(len+l>600000&&c.length){parts.push(c);c=[];len=0}c.push(o);len+=l});if(c.length)parts.push(c);
+    const rows=parts.map((p,i)=>({k:"p"+i,v:{j:JSON.stringify(p)}}));rows.push({k:"meta",v:{cats:sh.cats,stores:sh.stores,settings:sh.settings,parts:parts.length,v:Date.now()}});
+    ck(await sb.from("kv").upsert(rows));const ex=ck(await sb.from("kv").select("k")).data||[];const del=ex.map(x=>x.k).filter(k=>/^p\d+$/.test(k)&&+k.slice(1)>=parts.length);if(del.length)ck(await sb.from("kv").delete().in("k",del))},
+  async loadCosts(){const r=await sb.from("kv").select("v").eq("k","costs").maybeSingle();return r.data?r.data.v:{}},async saveCosts(c){ck(await sb.from("kv").upsert({k:"costs",v:c}))},
+  watchExpenses(cb){reE=async()=>{const r=await sb.from("expenses").select("*").order("date",{ascending:false}).limit(500);if(r.data){const l=r.data.map(e=>({...e,amt:+e.amt}));if(chg("e",l))cb(l)}};poll(reE)},
+  async addExpense(e){ck(await sb.from("expenses").insert(e));reE&&reE()},async delExpense(id){ck(await sb.from("expenses").delete().eq("id",id));reE&&reE()},
+  watchCarts(cb){reC=async()=>{const r=await sb.from("carts").select("*");if(r.data){const l=r.data.map(c=>({...(c.d||{}),id:c.id,t:+c.t}));if(chg("c",l))cb(l)}};poll(reC)},async delCart(id){ck(await sb.from("carts").delete().eq("id",id));reC&&reC()},
+  audit(text){return sb.from("audit").insert({t:Date.now(),who:cur,text}).then(()=>{},()=>{})},
+  async loadAudit(){const r=await sb.from("audit").select("*").order("t",{ascending:false}).limit(200);return r.data||[]},
+  watchStaff(cb){reS=async()=>{const r=await sb.from("staff").select("*");if(r.data){const l=r.data.map(s=>({id:s.email,role:s.role}));if(chg("s",l))cb(l)}};poll(reS)},
+  async setStaff(e,r){ck(await sb.from("staff").upsert({email:e.toLowerCase(),role:r}));reS&&reS()},async delStaff(e){ck(await sb.from("staff").delete().eq("email",e));reS&&reS()}}}
+
+/* ================= helpers on data ================= */
+const SH=()=>ST.shop,S=()=>ST.shop.settings;
+function markDirty(){dirty=true;$("savebar").classList.add("show")}
+function clean(){dirty=false;$("savebar").classList.remove("show")}
+async function saveAll(){try{await API.saveShop(ST.shop);await API.saveCosts(ST.costs);clean();toast("✅ Saved. Customer site-e live hoyeche");API.audit("Shop data saved")}catch(e){toast("Save hoyni: "+(e.code||e.message))}}
+addEventListener("beforeunload",e=>{if(dirty){e.preventDefault();e.returnValue=""}});
+const pending=()=>ST.orders.filter(o=>o.st=="Received").length;
+function bell(){const n=pending(),b=$("bdg");b.hidden=!n;b.textContent=n;document.title=(n?"("+n+") ":"")+"Fast Delivery Admin"}
+function orderLines(o){if(o.lines&&o.lines.length)return o.lines;return(o.items||"").split(", ").map(s=>{const m=s.match(/^(.*) x(\d+)$/);return m?{n:m[1],q:+m[2],p:0}:null}).filter(Boolean)}
+function applyStock(o,sign){let ch=false;orderLines(o).forEach(l=>{const p=SH().products.find(x=>x.n==l.n);if(p){p.k=Math.max(0,(+p.k||0)+sign*l.q);ch=true}});return ch}
+async function setStatus(id,st){const o=ST.orders.find(x=>x._id==id);if(!o||o.st==st)return;const p={st};let ch=false;
+ if(!o.sd&&st!="Received"&&st!="Cancelled"){ch=applyStock(o,-1);p.sd=true}else if(o.sd&&st=="Cancelled"){ch=applyStock(o,1);p.sd=false}
+ try{await API.updateOrder(id,p);Object.assign(o,p);API.audit("Order #"+o.id+" → "+st);if(ch&&!dirty){await API.saveShop(ST.shop)}else if(ch)markDirty();toast("Order #"+o.id+": "+st)}catch(e){toast("Update hoyni: "+(e.code||e.message))}route()}
+
+/* ================= pages ================= */
+const NAV=[["dash","Dashboard","🏠","all"],["orders","Orders","📦","all"],["products","Products","🏷️","admin"],["stock","Stock","🧊","all"],["exp","Expenses","💸","admin"],["rep","Reports","📊","admin"],["carts","Abandoned Carts","🛒","all"],["audit","Audit Log","📝","admin"],["staff","Staff","👥","owner"],["set","Settings","⚙️","admin"]];
+const can=r=>r=="all"||(r=="admin"&&ST.role!="staff")||(r=="owner"&&ST.role=="owner");
+function drawNav(){$("nav").innerHTML=NAV.filter(n=>can(n[3])).map(n=>`<button class="nav ${ST.page==n[0]?"on":""}" data-p="${n[0]}"><i>${n[2]}</i>${n[1]}</button>`).join("")+`<button class="nav" id="so" style="margin-top:14px;border:1px solid var(--line)"><i>↪</i>Sign Out</button>`}
+function mk(id,cfg){const c=$(id);if(!c)return;if(CH[id])CH[id].destroy();if(!window.Chart)return;CH[id]=new Chart(c,cfg)}
+const OPT={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}};
+function statsFor(list){const l=list.filter(o=>o.st!="Cancelled");return{n:l.length,sum:l.reduce((s,o)=>s+(+o.amt||0),0)}}
+function lastDays(n){const a=[];for(let i=n-1;i>=0;i--)a.push(dk(Date.now()-i*864e5));return a}
+function topProducts(list,k){const m={};list.forEach(o=>orderLines(o).forEach(l=>m[l.n]=(m[l.n]||0)+l.q));return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,k)}
+
+const PG={
+dash:{live:1,html(){const td=dk(Date.now()),to=ST.orders.filter(o=>dk(o.t)==td),t=statsFor(to),mo=statsFor(ST.orders.filter(o=>dk(o.t).slice(0,7)==td.slice(0,7))),low=SH().products.filter(p=>(+p.k||0)<=(+S().lowAt||0)).length;
+ return`<div class="grid g4"><div class="stat c1"><small>Today sales</small><b>${TK(t.sum)}</b></div><div class="stat c2"><small>Today orders</small><b>${t.n}</b></div><div class="stat c3"><small>Pending (new)</small><b>${pending()}</b></div><div class="stat c4"><small>This month</small><b>${TK(mo.sum)}</b></div></div>
+ <div class="two"><div class="card"><h3>Last 7 days sales</h3><div class="cv"><canvas id="c1"></canvas></div></div><div class="card"><h3>Order status</h3><div class="cv"><canvas id="c2"></canvas></div></div></div>
+ <div class="two"><div class="card"><h3>Top products</h3><div class="cv"><canvas id="c3"></canvas></div></div>
+ <div class="card"><h3>Alerts</h3><p>${low?`<span class="low">${low} product</span> stock kom/shesh`:"Stock thik ache 👍"}</p><p style="margin-top:8px">${ST.carts.filter(c=>Date.now()-c.t>20*6e4).length} abandoned cart</p><button class="b s" style="margin-top:12px" data-p="orders">Orders dekhun</button></div></div>
+ <div class="card"><h3>Recent orders</h3>${ST.orders.slice(0,6).map(o=>`<div class="li"><span class="pill" style="background:${SC[o.st]||"#999"}">${esc(o.st)}</span><div class="g"><b>#${esc(o.id)} · ${esc(o.nm||"")}</b><span class="muted">${fdt(o.t)} · ${esc(o.ar||"")}</span></div><b>${TK(o.amt)}</b></div>`).join("")||'<div class="empty">Ekhono order nai</div>'}</div>`},
+ after(){const d=lastDays(7),m={};ST.orders.filter(o=>o.st!="Cancelled").forEach(o=>m[dk(o.t)]=(m[dk(o.t)]||0)+(+o.amt||0));
+  mk("c1",{type:"bar",data:{labels:d.map(x=>x.slice(5)),datasets:[{data:d.map(x=>m[x]||0),backgroundColor:d.map((_,i)=>PAL[i%PAL.length]),borderRadius:8}]},options:OPT});
+  const sc=STS.map(s=>ST.orders.filter(o=>o.st==s).length);mk("c2",{type:"doughnut",data:{labels:STS,datasets:[{data:sc,backgroundColor:STS.map(s=>SC[s]),borderWidth:2}]},options:{...OPT,plugins:{legend:{display:true,position:"bottom"}}}});
+  const tp=topProducts(ST.orders.filter(o=>o.st!="Cancelled"),6);mk("c3",{type:"bar",data:{labels:tp.map(x=>x[0]),datasets:[{data:tp.map(x=>x[1]),backgroundColor:PAL,borderRadius:8}]},options:{...OPT,indexAxis:"y"}})}},
+
+orders:{live:1,html(){const f=ST.orders.filter(o=>(OF=="all"||o.st==OF)&&(!OQ||(o.id+o.nm+o.ph+o.ar+o.items).toLowerCase().includes(OQ.toLowerCase())));
+ return`<input class="in" id="oq" placeholder="Search order, name, phone…" value="${esc(OQ)}" style="margin-bottom:10px"><div class="chips">${["all",...STS].map(s=>`<button class="chip ${OF==s?"on":""}" data-of="${s}">${s=="all"?"All":s}${s!="all"?" ("+ST.orders.filter(o=>o.st==s).length+")":""}</button>`).join("")}</div>
+ ${f.slice(0,150).map(o=>{const nx=STS[STS.indexOf(o.st)+1];const wa=(o.ph||"").replace(/\D/g,"").replace(/^0/,"880");
+ return`<div class="card ord" style="border-left-color:${SC[o.st]||"#999"}"><div class="row sp"><b>#${esc(o.id)}</b><span class="pill" style="background:${SC[o.st]||"#999"}">${esc(o.st)}</span></div>
+ <div class="muted">${fdt(o.t)} · ${esc(o.pm||"COD")}${o.trx?" · Trx "+esc(o.trx):""}</div>
+ <div style="margin-top:6px"><b>${esc(o.nm||"")}</b> · <a href="tel:${esc(o.ph)}">${esc(o.ph||"")}</a> ${wa?`<a href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a>`:""}</div>
+ <div class="muted">${esc(o.ad||"")} ${o.ar?"· "+esc(o.ar):""}</div><div class="it">${esc(o.items||"")}</div>
+ <div class="row sp wrap"><b style="font-size:18px">${TK(o.amt)}</b><span class="row"><select class="in" style="width:auto;padding:8px" data-st="${o._id}">${STS.map(s=>`<option ${o.st==s?"selected":""}>${s}</option>`).join("")}</select>${nx&&nx!="Cancelled"?`<button class="b s" data-nx="${o._id}|${nx}">→ ${nx}</button>`:""}</span></div></div>`}).join("")||'<div class="empty">Kono order nai</div>'}`}},
+
+products:{html(){const sub=SH().products,f=sub.filter(p=>(!PC||p.c==PC)&&(!PQ||p.n.toLowerCase().includes(PQ.toLowerCase())));
+ return`<div class="row" style="margin-bottom:10px"><input class="in" id="pq" placeholder="Search product…" value="${esc(PQ)}"><button class="b" data-pe="new">+ Add</button></div>
+ <select class="in" id="pc" style="margin-bottom:10px"><option value="">All categories</option>${SH().cats.map(c=>`<option ${PC==c[1]?"selected":""}>${esc(c[1])}</option>`).join("")}</select>
+ ${sub.length?"":`<div class="card empty">Ekhono kono product nai.<br><br><button class="b" id="imp">⬇ Website theke ager product import korun</button></div>`}
+ <div class="card" style="padding:4px 16px">${f.slice(0,200).map(p=>`<div class="li" data-pe="${p.id}"><div class="thumb">${pimg(p.i)}</div><div class="g"><b>${esc(p.n)}${p.h?" 🚫":""}</b><span class="muted">${esc(p.c)} · ${TK(p.p)} · stock ${p.k}</span></div><span>✏️</span></div>`).join("")}</div>
+ ${f.length>200?'<p class="muted">Prothom 200 ta dekhano hocche, search korun.</p>':""}
+ ${sub.length?`<button class="b o w" id="imp2">⬇ Website theke abar import (replace)</button>`:""}`}},
+
+stock:{html(){const th=+S().lowAt||0,l=SH().products.filter(p=>SF=="all"||(+p.k||0)<=th).sort((a,b)=>a.k-b.k);
+ return`<div class="chips"><button class="chip ${SF=="low"?"on":""}" data-sf="low">Low / out</button><button class="chip ${SF=="all"?"on":""}" data-sf="all">All</button></div>
+ <div class="card" style="padding:4px 16px">${l.slice(0,200).map(p=>`<div class="li"><div class="thumb">${pimg(p.i)}</div><div class="g"><b>${esc(p.n)}</b><span class="${p.k<=0?"low":(p.k<=th?"low":"muted")}">${p.k<=0?"Out of stock":p.k<=th?"Low stock":"In stock"}</span></div>
+ <button class="b o s" data-sk="${p.id}|-1">−</button><input class="in num" type="number" min="0" value="${p.k}" data-ski="${p.id}"><button class="b o s" data-sk="${p.id}|1">+</button></div>`).join("")||'<div class="empty">Shob stock thik ache 🎉</div>'}</div>`}},
+
+exp:{live:1,html(){const m=dk(Date.now()).slice(0,7),tot=ST.exp.filter(e=>(e.date||"").slice(0,7)==m).reduce((s,e)=>s+(+e.amt||0),0);
+ return`<div class="stat c7" style="margin-bottom:14px"><small>This month expenses</small><b>${TK(tot)}</b></div>
+ <div class="card"><h3>Add expense</h3><div class="row wrap"><input class="in" id="ed" type="date" value="${dk(Date.now())}" style="flex:1 1 140px"><input class="in" id="en" type="number" placeholder="Amount ৳" style="flex:1 1 120px"></div>
+ <div class="row wrap" style="margin-top:8px"><input class="in" id="et" placeholder="Title (e.g. Rider salary)" style="flex:2 1 160px"><select class="in" id="ec" style="flex:1 1 120px">${["Salary","Ads","Rent","Transport","Packaging","Other"].map(x=>`<option>${x}</option>`).join("")}</select></div><button class="b w" id="ea" style="margin-top:10px">Add expense</button></div>
+ <div class="card" style="padding:4px 16px">${ST.exp.map(e=>`<div class="li"><div class="g"><b>${esc(e.title)}</b><span class="muted">${esc(e.date)} · ${esc(e.cat)}</span></div><b>${TK(e.amt)}</b><button class="b r s" data-ed="${e.id}">✕</button></div>`).join("")||'<div class="empty">Kono expense nai</div>'}</div>`}},
+
+rep:{live:1,range(){const days=RR=="today"?1:+RR,from=dk(Date.now()-(days-1)*864e5);return{days,from,os:ST.orders.filter(o=>dk(o.t)>=from&&(RD=="del"?o.st=="Delivered":o.st!="Cancelled")),ex:ST.exp.filter(e=>(e.date||"")>=from)}},
+ html(){const{os,ex}=this.range(),sales=os.reduce((s,o)=>s+(+o.amt||0),0);let cogs=0;os.forEach(o=>orderLines(o).forEach(l=>cogs+=l.q*(+ST.costs[l.n]||0)));const oe=ex.reduce((s,e)=>s+(+e.amt||0),0),net=sales-cogs-oe;
+ return`<div class="card"><div class="row wrap"><select class="in" id="rr" style="flex:1 1 150px">${[["today","Today"],["7","Last 7 days"],["30","Last 30 days"],["90","Last 90 days"]].map(x=>`<option value="${x[0]}" ${RR==x[0]?"selected":""}>${x[1]}</option>`).join("")}</select>
+ <select class="in" id="rd" style="flex:1 1 170px"><option value="del" ${RD=="del"?"selected":""}>Only Delivered orders</option><option value="all" ${RD=="all"?"selected":""}>All (except cancelled)</option></select><button class="b o" id="csv">⬇ CSV</button></div></div>
+ <div class="grid"><div class="stat c1"><small>Sales</small><b>${TK(sales)}</b></div><div class="stat c2"><small>Orders</small><b>${os.length}</b></div><div class="stat c3"><small>Avg order</small><b>${TK(os.length?sales/os.length:0)}</b></div><div class="stat c4"><small>Product cost</small><b>${TK(cogs)}</b></div><div class="stat c7"><small>Other expenses</small><b>${TK(oe)}</b></div><div class="stat ${net>=0?"c6":"c5"}"><small>Net profit</small><b>${TK(net)}</b></div></div>
+ <div class="card"><h3>Sales by day</h3><div class="cv"><canvas id="r1"></canvas></div></div>
+ <div class="two"><div class="card"><h3>By category</h3><div class="cv"><canvas id="r2"></canvas></div></div><div class="card"><h3>Payment method</h3><div class="cv"><canvas id="r3"></canvas></div></div></div>
+ <div class="two"><div class="card"><h3>Top products</h3><div class="cv"><canvas id="r4"></canvas></div></div><div class="card"><h3>By area</h3><div class="cv"><canvas id="r5"></canvas></div></div></div>
+ <p class="muted">Product cost ager jonno Products-e "Cost price" din.</p>`},
+ after(){const{days,os}=this.range(),d=lastDays(Math.min(days,90)),m={};os.forEach(o=>m[dk(o.t)]=(m[dk(o.t)]||0)+(+o.amt||0));
+  mk("r1",{type:"line",data:{labels:d.map(x=>x.slice(5)),datasets:[{data:d.map(x=>m[x]||0),borderColor:"#10b981",backgroundColor:"#10b98133",fill:true,tension:.35,pointBackgroundColor:d.map((_,i)=>PAL[i%PAL.length]),pointRadius:4}]},options:OPT});
+  const cm={};os.forEach(o=>orderLines(o).forEach(l=>{const p=SH().products.find(x=>x.n==l.n);const k=p?p.c:"Other";cm[k]=(cm[k]||0)+l.q*(l.p||(p?p.p:0))}));const ce=Object.entries(cm).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  mk("r2",{type:"doughnut",data:{labels:ce.map(x=>x[0]),datasets:[{data:ce.map(x=>x[1]),backgroundColor:PAL,borderWidth:2}]},options:{...OPT,plugins:{legend:{display:true,position:"bottom"}}}});
+  const pm={};os.forEach(o=>pm[o.pm||"COD"]=(pm[o.pm||"COD"]||0)+1);mk("r3",{type:"pie",data:{labels:Object.keys(pm),datasets:[{data:Object.values(pm),backgroundColor:["#f59e0b","#ec4899","#3b82f6","#10b981"],borderWidth:2}]},options:{...OPT,plugins:{legend:{display:true,position:"bottom"}}}});
+  const tp=topProducts(os,7);mk("r4",{type:"bar",data:{labels:tp.map(x=>x[0]),datasets:[{data:tp.map(x=>x[1]),backgroundColor:PAL,borderRadius:8}]},options:{...OPT,indexAxis:"y"}});
+  const am={};os.forEach(o=>am[o.ar||"?"]=(am[o.ar||"?"]||0)+1);const ae=Object.entries(am).sort((a,b)=>b[1]-a[1]).slice(0,7);mk("r5",{type:"bar",data:{labels:ae.map(x=>x[0]),datasets:[{data:ae.map(x=>x[1]),backgroundColor:PAL.slice().reverse(),borderRadius:8}]},options:OPT})}},
+
+carts:{live:1,html(){const l=ST.carts.slice().sort((a,b)=>b.t-a.t);return`<p class="muted" style="margin-bottom:10px">Cart-e product rekhe 20 minute-er beshi order koreni, emon customer.</p>`+(l.map(c=>{const old=Date.now()-c.t>20*6e4,wa=(c.ph||"").replace(/\D/g,"").replace(/^0/,"880");return`<div class="card" style="border-left:5px solid ${old?"var(--warn)":"#cbd5e1"}"><div class="row sp"><b>${TK(c.amt)}</b><span class="pill" style="background:${old?"#f59e0b":"#94a3b8"}">${old?"Abandoned":"Active"}</span></div><div class="muted">${fdt(c.t)} ${c.ar?"· "+esc(c.ar):""} ${c.nm?"· "+esc(c.nm):""}</div><div class="it" style="background:var(--bg);border-radius:10px;padding:8px 10px;margin:8px 0;font-size:13.5px">${esc(c.items)}</div><div class="row">${wa?`<a class="b s" style="text-decoration:none" href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a>`:""}<button class="b r s" data-dc="${c.id}">Delete</button></div></div>`}).join("")||'<div class="empty">Kono cart nai</div>')}},
+
+audit:{html(){return`<div class="card" id="au"><div class="empty">Loading…</div></div>`},async after(){const l=await API.loadAudit();$("au")&&($("au").innerHTML=l.map(a=>`<div class="li"><div class="g"><b>${esc(a.text)}</b><span class="muted">${fdt(a.t)} · ${esc(a.who||"")}</span></div></div>`).join("")||'<div class="empty">Kichu nai</div>')}},
+
+staff:{live:1,html(){return`<div class="card"><h3>Add staff</h3><p class="muted" style="margin-bottom:8px">Staff age admin login page-e "Create account" kore nibe, tarpor ekhane email add korun.</p><input class="in" id="se" type="email" placeholder="staff@email.com"><select class="in" id="sr" style="margin:8px 0"><option value="staff">Staff — Orders, Stock, Carts</option><option value="admin">Manager — shob (Staff chara)</option></select><button class="b w" id="sa">Add</button></div>
+ <div class="card" style="padding:4px 16px">${ST.staff.map(s=>`<div class="li"><div class="g"><b>${esc(s.id)}</b><span class="muted">${esc(s.role)}</span></div><button class="b r s" data-sd="${esc(s.id)}">Remove</button></div>`).join("")||'<div class="empty">Kono staff nai</div>'}</div>`}},
+
+set:{html(){const s=S(),f=(k,l,t="text")=>`<label class="lbl">${l}</label><input class="in" data-s="${k}" type="${t}" value="${esc(s[k])}">`;
+ return`<div class="card"><h3>Shop</h3><div class="tg"><input type="checkbox" id="so2" ${s.open?"checked":""}><label for="so2">Dokan ekhon khola (order neya hobe)</label></div>
+ ${f("notice","Notice (site-er upore dekhabe)")}${f("fee","Delivery fee (৳)","number")}${f("free","Koto taka-r upore delivery free (৳)","number")}${f("coupon","Coupon code")}${f("pct","Coupon discount %","number")}${f("lowAt","Low stock alert (<=)","number")}</div>
+ <div class="card"><h3>Contact</h3>${f("wa","WhatsApp (880 diye, + chara)")}${f("bk","bKash number")}${f("ng","Nagad number")}${f("mail","Email")}${f("areasX","Extra delivery areas (comma diye)")}</div>
+ <div class="card"><h3>Categories</h3>${SH().cats.map((c,i)=>`<div class="row" style="margin-bottom:6px"><input class="in" style="width:62px;text-align:center" data-ce="${i}|0" value="${esc(c[0])}"><input class="in" data-ce="${i}|1" value="${esc(c[1])}"><button class="b r s" data-cd="${i}">✕</button></div>`).join("")}<button class="b o s" id="ca">+ Add category</button></div>
+ <div class="card"><h3>Stores / Restaurants</h3>${SH().stores.map((c,i)=>`<div style="border-bottom:1px solid var(--line);padding:8px 0"><div class="row"><input class="in" style="width:62px;text-align:center" data-se="${i}|e" value="${esc(c.e)}"><input class="in" data-se="${i}|n" placeholder="Name" value="${esc(c.n)}"><button class="b r s" data-sx="${i}">✕</button></div>
+ <div class="row" style="margin-top:6px"><select class="in" data-se="${i}|c">${SH().cats.map(x=>`<option ${c.c==x[1]?"selected":""}>${esc(x[1])}</option>`).join("")}</select><input class="in num" type="number" step="0.1" data-se="${i}|r" value="${c.r}" title="rating"><input class="in num" type="number" data-se="${i}|t" value="${c.t}" title="minutes"></div><input class="in" style="margin-top:6px" data-se="${i}|d" placeholder="Short description" value="${esc(c.d)}"></div>`).join("")}<button class="b o s" id="sta" style="margin-top:8px">+ Add store</button></div>`}}
+};
+function pimg(i){return i&&String(i).slice(0,5)=="data:"?`<img src="${i}" alt="">`:esc(i||"📦")}
+
+/* ================= routing / render ================= */
+const TTL={dash:"Dashboard",orders:"Orders",products:"Products",stock:"Stock",exp:"Expenses",rep:"Reports",carts:"Abandoned Carts",audit:"Audit Log",staff:"Staff",set:"Settings"};
+function busy(){const a=document.activeElement;return a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&$("main").contains(a)||$("md").classList.contains("show")}
+function route(force){const p=PG[ST.page];if(!p)return;if(!force&&busy())return;const sy=scrollY;$("t1").textContent=TTL[ST.page];$("t2").textContent=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+ $("main").innerHTML=p.html();drawNav();bell();p.after&&p.after();if(!force)scrollTo(0,sy)}
+function go(pg){ST.page=pg;closeSide();route(true);scrollTo(0,0)}
+function closeSide(){$("side").classList.remove("open");$("sh").classList.remove("show")}
+$("mn").onclick=()=>{$("side").classList.add("open");$("sh").classList.add("show")};$("sh").onclick=closeSide;
+$("bell").onclick=()=>{try{window.Notification&&Notification.permission=="default"&&Notification.requestPermission()}catch(e){}OF="Received";go("orders")};
+$("rf").onclick=()=>route(true);
+$("sv").onclick=saveAll;$("dis").onclick=async()=>{if(!confirm("Shob unsaved change bad dibo?"))return;await loadShop();clean();route(true)};
+
+function closeMd(){$("md").classList.remove("show")}
+$("md").onclick=e=>{if(e.target==$("md"))closeMd()};
+function openMd(h){$("mdb").innerHTML=h;$("md").classList.add("show")}
+
+/* product editor */
+let DR=null;
+function pEdit(id){const base=id=="new"?{id:uid(),n:"",c:(SH().cats[0]||[0,""])[1],s:"",p:0,i:"📦",f:0,d:"",st:null,k:10,h:0,_new:1}:{...SH().products.find(p=>p.id==id)};DR=base;DR.cost=ST.costs[base.n]||"";DR.on=base.n;
+ openMd(`<div class="row sp"><h3 style="margin:0">${id=="new"?"New product":"Edit product"}</h3><button class="b o s" id="mc">✕</button></div>
+ <div class="row" style="margin-top:12px"><div class="thumb" id="pv" style="width:84px;height:84px">${pimg(DR.i)}</div><div style="flex:1"><input class="in" type="file" accept="image/*" id="pf"><input class="in" id="pem" placeholder="ba emoji (🍔)" style="margin-top:6px" value="${String(DR.i).slice(0,5)=="data:"?"":esc(DR.i)}"></div></div>
+ <label class="lbl">Name</label><input class="in" id="pn" value="${esc(DR.n)}">
+ <div class="row"><div style="flex:1"><label class="lbl">Price ৳</label><input class="in" id="pp" type="number" value="${DR.p}"></div><div style="flex:1"><label class="lbl">Cost price ৳</label><input class="in" id="pcs" type="number" value="${DR.cost}"></div><div style="flex:1"><label class="lbl">Stock</label><input class="in" id="pk" type="number" value="${DR.k}"></div></div>
+ <label class="lbl">Category</label><select class="in" id="pcat">${SH().cats.map(c=>`<option ${DR.c==c[1]?"selected":""}>${esc(c[1])}</option>`).join("")}</select>
+ <label class="lbl">Sub-category</label><input class="in" id="ps" value="${esc(DR.s)}">
+ <label class="lbl">Store (optional)</label><select class="in" id="pst"><option value="">— none —</option>${SH().stores.map(s=>`<option value="${s.id}" ${DR.st==s.id?"selected":""}>${esc(s.n)}</option>`).join("")}</select>
+ <label class="lbl">Short description</label><input class="in" id="pd" value="${esc(DR.d)}">
+ <div class="tg" style="margin-top:12px"><input type="checkbox" id="pf1" ${DR.f&1?"checked":""}><label for="pf1">🕶️ Stealth pack</label></div><div class="tg" style="margin-top:8px"><input type="checkbox" id="pf4" ${DR.f&4?"checked":""}><label for="pf4">🔞 18+ only</label></div><div class="tg" style="margin:8px 0 14px"><input type="checkbox" id="ph" ${DR.h?"checked":""}><label for="ph">Hide from website</label></div>
+ <div class="row"><button class="b w" id="psv">Done</button>${DR._new?"":'<button class="b r" id="pdel">Delete</button>'}</div>`);
+ $("mc").onclick=closeMd;$("pf").onchange=async e=>{if(e.target.files[0]){DR.i=await imgData(e.target.files[0]);$("pv").innerHTML=pimg(DR.i);$("pem").value=""}};
+ $("pem").oninput=e=>{if(e.target.value){DR.i=e.target.value;$("pv").innerHTML=pimg(DR.i)}};
+ $("psv").onclick=()=>{const n=$("pn").value.trim();if(!n)return alert("Name din");const p={id:DR.id,n,c:$("pcat").value,s:$("ps").value.trim(),p:+$("pp").value||0,i:DR.i,f:($("pf1").checked?1:0)|($("pf4").checked?4:0),d:$("pd").value.trim(),st:$("pst").value?+$("pst").value:null,k:Math.max(0,+$("pk").value||0),h:$("ph").checked?1:0};
+  const list=SH().products,ix=list.findIndex(x=>x.id==p.id);if(ix<0)list.unshift(p);else list[ix]=p;if(DR.on&&DR.on!=n)delete ST.costs[DR.on];const cs=$("pcs").value;if(cs!=="")ST.costs[n]=+cs;else delete ST.costs[n];markDirty();closeMd();route(true)};
+ const dl=$("pdel");if(dl)dl.onclick=()=>{if(!confirm("Delete korbo?"))return;SH().products=SH().products.filter(x=>x.id!=DR.id);markDirty();closeMd();route(true)}}
+
+function importSite(){return new Promise((res,rej)=>{const f=document.createElement("iframe");f.style.cssText="position:absolute;width:0;height:0;border:0";f.src="index.html?nofb=1";const to=setTimeout(()=>{f.remove();rej(new Error("timeout"))},15000);
+ f.onload=()=>setTimeout(()=>{try{const w=f.contentWindow,J=x=>JSON.parse(w.JSON.stringify(w.eval(x)));const P=J("P"),stores=J("STORES"),cats=J("cats"),sx=J("S");
+  const products=P.map(a=>({id:uid(),n:a[0],c:a[1],s:a[2]||"",p:+a[3]||0,i:a[4]||"📦",f:(a[5]||0)&~2,d:a[6]||"",st:a[7]==null?null:a[7],k:a[8]==null?((a[5]&2)?0:50):a[8],h:a[9]?1:0}));clearTimeout(to);res({products,stores,cats,settings:sx})}catch(e){rej(e)}f.remove()},500);document.body.appendChild(f)})}
+async function doImport(){if(SH().products.length&&!confirm("Ekhoner product gula replace hobe. Cholbe?"))return;try{const d=await importSite();SH().products=d.products;SH().stores=d.stores;SH().cats=d.cats;SH().settings={...DEF_S,...SH().settings,...d.settings};markDirty();route(true);toast("✅ "+d.products.length+" product import hoyeche. Ekhon Save din")}catch(e){alert("Import hoyni. admin.html ar index.html ekoi jaygay (GitHub Pages) thakte hobe.\n"+e.message)}}
+
+/* ================= events ================= */
+$("main").addEventListener("click",async e=>{const t=e.target.closest("[data-p],[data-of],[data-nx],[data-pe],[data-sf],[data-sk],[data-ed],[data-dc],[data-sd],[data-cd],[data-sx],#imp,#imp2,#ea,#csv,#sa,#ca,#sta");if(!t)return;const d=t.dataset;
+ if(d.p)return go(d.p);if(d.of){OF=d.of;return route(true)}if(d.nx){const[i,s]=d.nx.split("|");return setStatus(i,s)}if(d.pe)return pEdit(d.pe);if(d.sf){SF=d.sf;return route(true)}
+ if(d.sk){const[i,n]=d.sk.split("|"),p=SH().products.find(x=>x.id==i);p.k=Math.max(0,(+p.k||0)+ +n);markDirty();return route(true)}
+ if(d.ed){await API.delExpense(d.ed);return}if(d.dc){await API.delCart(d.dc);return}if(d.sd){if(confirm("Remove?"))await API.delStaff(d.sd);return}
+ if(d.cd){SH().cats.splice(+d.cd,1);markDirty();return route(true)}if(d.sx){SH().stores.splice(+d.sx,1);markDirty();return route(true)}
+ if(t.id=="imp"||t.id=="imp2")return doImport();
+ if(t.id=="ea"){const a=+$("en").value,ti=$("et").value.trim();if(!a||!ti)return alert("Title ar amount din");await API.addExpense({date:$("ed").value,title:ti,cat:$("ec").value,amt:a});API.audit("Expense: "+ti+" ৳"+a);return}
+ if(t.id=="sa"){const em=$("se").value.trim().toLowerCase();if(!em)return;await API.setStaff(em,$("sr").value);API.audit("Staff added: "+em);toast("Added");return}
+ if(t.id=="ca"){SH().cats.push(["📦","New"]);markDirty();return route(true)}
+ if(t.id=="sta"){SH().stores.push({id:Date.now()%1e6,n:"New store",c:(SH().cats[0]||[0,""])[1],e:"🍽️",r:4.5,t:30,d:""});markDirty();return route(true)}
+ if(t.id=="csv"){const{os}=PG.rep.range(),q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"',rows=[["id","date","name","phone","area","address","items","amount","payment","trx","status"]].concat(os.map(o=>[o.id,new Date(o.t).toISOString(),o.nm,o.ph,o.ar,o.ad,o.items,o.amt,o.pm,o.trx,o.st]));
+  const b=new Blob(["﻿"+rows.map(r=>r.map(q).join(",")).join("\n")],{type:"text/csv"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="report-"+dk(Date.now())+".csv";a.click();return}});
+$("main").addEventListener("change",e=>{const t=e.target;
+ if(t.dataset.st)return setStatus(t.dataset.st,t.value);if(t.id=="rr"){RR=t.value;return route(true)}if(t.id=="rd"){RD=t.value;return route(true)}if(t.id=="pc"){PC=t.value;return route(true)}
+ if(t.dataset.ski){const p=SH().products.find(x=>x.id==t.dataset.ski);p.k=Math.max(0,+t.value||0);markDirty();return route(true)}
+ if(t.dataset.s){const k=t.dataset.s;S()[k]=t.type=="number"?+t.value:t.value;return markDirty()}if(t.id=="so2"){S().open=t.checked;return markDirty()}
+ if(t.dataset.ce){const[i,j]=t.dataset.ce.split("|");const old=SH().cats[i][1];SH().cats[i][j]=t.value;if(j==1){SH().products.forEach(p=>{if(p.c==old)p.c=t.value});SH().stores.forEach(p=>{if(p.c==old)p.c=t.value})}return markDirty()}
+ if(t.dataset.se){const[i,k]=t.dataset.se.split("|");SH().stores[i][k]=["r","t"].includes(k)?+t.value:t.value;return markDirty()}});
+$("main").addEventListener("input",e=>{if(e.target.id=="oq"){OQ=e.target.value;clearTimeout(window._q);window._q=setTimeout(()=>{const v=$("oq"),p=v.selectionStart;route(true);const n=$("oq");n.focus();n.setSelectionRange(p,p)},250)}
+ if(e.target.id=="pq"){PQ=e.target.value;clearTimeout(window._q);window._q=setTimeout(()=>{route(true);const n=$("pq");n.focus();n.setSelectionRange(PQ.length,PQ.length)},250)}});
+$("nav").addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;if(t.id=="so")return API.logout();go(t.dataset.p)});
+
+/* ================= boot ================= */
+async function loadShop(){let sh=null;try{sh=await API.loadShop()}catch(e){toast("Shop data load hoyni: "+(e.code||e.message))}
+ ST.shop=sh||{cats:[],stores:[],settings:{...DEF_S},products:[]};ST.shop.settings={...DEF_S,...ST.shop.settings};try{ST.costs=await API.loadCosts()}catch(e){ST.costs={}}}
+async function start(){ST.started=true;$("login").hidden=true;$("setup").hidden=true;$("app").hidden=false;
+ if(!can(NAV.find(n=>n[0]==ST.page)[3]))ST.page="orders";
+ await loadShop();
+ API.watchOrders((l,added)=>{ST.orders=l;added.forEach(notifyNew);bell();if(!firstLoad||true)route()});
+ API.watchCarts(l=>{ST.carts=l;if(["carts","dash"].includes(ST.page))route()});
+ if(can("admin")){API.watchExpenses(l=>{ST.exp=l;if(["exp","rep"].includes(ST.page))route()})}
+ if(can("owner")){API.watchStaff(l=>{ST.staff=l;if(ST.page=="staff")route()})}
+ route(true);firstLoad=false;
+ if(window.Notification&&Notification.permission=="default")setTimeout(()=>toast("🔔 Bell-e tap kore notification on korun"),1500)}
+async function boot(){const demo=/[?&]demo=1/.test(location.search);API=demo?demoAPI():sbAPI();if(!API){$("setup").hidden=false;return}
+ try{await API.init()}catch(e){$("setup").hidden=false;$("setup").innerHTML="<h2>Supabase load hoyni</h2><p class='muted'>Internet check korun.</p>";return}
+ API.onAuth(async u=>{if(u&&ST.started&&ST.user&&ST.user.id==u.id)return;if(!u){$("login").hidden=false;$("app").hidden=true;return}ST.user=u;ST.role=await API.role(u.email);
+  if(!ST.role){$("login").hidden=false;$("app").hidden=true;try{sessionStorage.setItem("lmsg","Ei account-er access nai. Owner ke apnar email Staff-e add korte bolun.")}catch(e){}try{await API.logout()}catch(e){}return}
+  start()})}
+const lerr=e=>{const c=((e&&e.code)||"")+" "+((e&&e.message)||"");$("lm").textContent=/Invalid login|invalid_credentials|wrong/i.test(c)?"Email ba password bhul.":/already|registered/i.test(c)?"Ei email-e account ache, Sign in korun.":/at least|weak/i.test(c)?"Password kom-pokkhe 6 character.":/network|fetch/i.test(c)?"Internet nai.":/not confirmed/i.test(c)?"Email confirm kora hoyni.":"Error: "+c.trim()};
+$("lg").onclick=async()=>{$("lm").textContent="";try{await API.login($("le").value.trim(),$("lp").value)}catch(e){lerr(e)}};
+$("ls").onclick=async()=>{$("lm").textContent="";try{await API.signup($("le").value.trim(),$("lp").value)}catch(e){lerr(e)}};
+$("lp").onkeydown=e=>{if(e.key=="Enter")$("lg").click()};
+try{const m=sessionStorage.getItem("lmsg");if(m){$("lm").textContent=m;sessionStorage.removeItem("lmsg")}}catch(e){}
+boot();
+</script></body></html>
